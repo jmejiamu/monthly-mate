@@ -14,6 +14,12 @@ export default function MonthDetailsLayout() {
           presentation: "modal",
         }}
       />
+      <Stack.Screen
+        name="bill-details"
+        options={{
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }

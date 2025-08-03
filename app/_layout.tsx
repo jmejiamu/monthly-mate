@@ -11,6 +11,9 @@ import { useEffect } from "react";
 import "react-native-reanimated";
 
 import { useColorScheme } from "@/components/useColorScheme";
+import { Provider } from "react-redux";
+import { persistor, store } from "@/redux/store/store";
+import { PersistGate } from "redux-persist/integration/react";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -54,9 +57,13 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(main)" options={{ headerShown: false }} />
-      </Stack>
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <Stack>
+            <Stack.Screen name="(main)" options={{ headerShown: false }} />
+          </Stack>
+        </PersistGate>
+      </Provider>
     </ThemeProvider>
   );
 }
