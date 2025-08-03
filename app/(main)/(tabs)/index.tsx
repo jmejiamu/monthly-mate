@@ -32,8 +32,8 @@ export default function Home() {
     "#FFF2B2", // Light Yellow
     "#FFDAC1", // Peach
   ];
-  const handleMonthPress = (month: string) => {
-    router.navigate({ pathname: `/month-details`, params: { month } });
+  const handleMonthPress = (month: string, emoji: string) => {
+    router.navigate({ pathname: `/month-details`, params: { month, emoji } });
   };
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
@@ -43,7 +43,9 @@ export default function Home() {
           data={months}
           keyExtractor={(item) => item.name}
           renderItem={({ item, index }) => (
-            <TouchableOpacity onPress={() => handleMonthPress(item.name)}>
+            <TouchableOpacity
+              onPress={() => handleMonthPress(item.name, item.emoji)}
+            >
               <View
                 style={[
                   {
