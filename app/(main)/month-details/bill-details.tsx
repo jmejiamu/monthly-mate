@@ -8,23 +8,45 @@ import {
 import React from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { removeParticipantFromBill } from "@/redux/features/billSlice/removeParticipantFromBill";
-import { toggleParticipantPaid } from "@/redux/features/billSlice/billSlice";
-import { useSelector } from "react-redux";
-import { selectBillByMonthAndIndex } from "@/redux/features/billSlice/selectBillByMonthAndIndex";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/redux/store/store";
 import { AntDesign, FontAwesome } from "@expo/vector-icons";
+import { useSelector, useDispatch } from "react-redux";
+
+import { removeParticipantFromBill } from "@/redux/features/billSlice/removeParticipantFromBill";
+import { selectBillByMonthAndIndex } from "@/redux/features/billSlice/selectBillByMonthAndIndex";
+import { toggleParticipantPaid } from "@/redux/features/billSlice/billSlice";
+import ParticipantCard from "@/components/ParticipantCard/ParticipantCard";
+import { AppDispatch } from "@/redux/store/store";
 
 const BillDetails = () => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { month, billIndex } = useLocalSearchParams();
+
   const bill = useSelector(
     selectBillByMonthAndIndex(month as string, Number(billIndex))
   );
-  // Support both string and object formats for participants
+
   const participants = bill?.participants || [];
+
+  const handleTogglePaid = (participantName: string) => {
+    dispatch(
+      toggleParticipantPaid({
+        month: month as string,
+        billIndex: Number(billIndex),
+        participantName,
+      })
+    );
+  };
+
+  const handleRemoveParticipant = (participantName: string) => {
+    dispatch(
+      removeParticipantFromBill({
+        month: month as string,
+        billIndex: Number(billIndex),
+        participant: participantName,
+      })
+    );
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -46,13 +68,9 @@ const BillDetails = () => {
         >
           <FontAwesome name="money" size={46} color="black" />
         </View>
-        <Text style={{ fontSize: 18, fontWeight: "600" }}>
-          {bill?.description}
-        </Text>
-        <Text style={{ fontSize: 18, fontWeight: "600" }}>
-          Full Amount ${bill?.amount}
-        </Text>
-        <Text style={{ fontSize: 18, fontWeight: "600" }}>
+        <Text style={styles.textStyle}>{bill?.description}</Text>
+        <Text style={styles.textStyle}>Full Amount ${bill?.amount}</Text>
+        <Text style={styles.textStyle}>
           Per Person $
           {participants.length > 0
             ? (Number(bill?.amount) / participants.length).toFixed(2)
@@ -60,68 +78,18 @@ const BillDetails = () => {
         </Text>
         <FlatList
           data={participants}
-          keyExtractor={(item, idx) => {
-            if (typeof item === "string") return `${item}-${idx}`;
-            if (item && typeof item === "object" && "name" in item)
-              return `${item.name}-${idx}`;
-            return `${idx}`;
-          }}
+          keyExtractor={(item, idx) => `${item.name}-${idx}`}
           renderItem={({ item }) => {
             // Support both string and object formats
             const name = typeof item === "string" ? item : item?.name;
             const paid = typeof item === "object" && item?.paid;
             return (
-              <View style={styles.participantItem}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    flex: 1,
-                  }}
-                >
-                  <TouchableOpacity
-                    onPress={() =>
-                      name &&
-                      dispatch(
-                        toggleParticipantPaid({
-                          month: month as string,
-                          billIndex: Number(billIndex),
-                          participantName: name,
-                        })
-                      )
-                    }
-                    accessibilityLabel={
-                      paid ? "Mark as unpaid" : "Mark as paid"
-                    }
-                  >
-                    <FontAwesome
-                      name={paid ? "check-circle" : "circle-o"}
-                      size={22}
-                      color={paid ? "#4caf50" : "#bbb"}
-                    />
-                  </TouchableOpacity>
-                  <View style={{ marginLeft: 12 }} />
-                  <Text
-                    style={[styles.participantText, paid && styles.paidText]}
-                  >
-                    {name}
-                  </Text>
-                </View>
-                <TouchableOpacity
-                  onPress={() =>
-                    name &&
-                    dispatch(
-                      removeParticipantFromBill({
-                        month: month as string,
-                        billIndex: Number(billIndex),
-                        participant: name,
-                      })
-                    )
-                  }
-                >
-                  <Text style={styles.removeText}>Remove</Text>
-                </TouchableOpacity>
-              </View>
+              <ParticipantCard
+                name={name}
+                paid={paid}
+                onTogglePaid={() => handleTogglePaid(name)}
+                onRemove={() => handleRemoveParticipant(name)}
+              />
             );
           }}
           style={{ marginTop: 8 }}
@@ -134,6 +102,10 @@ const BillDetails = () => {
 export default BillDetails;
 
 const styles = StyleSheet.create({
+  textStyle: {
+    fontSize: 18,
+    fontWeight: "600",
+  },
   /// Participant list styles
   participantItem: {
     flexDirection: "row",

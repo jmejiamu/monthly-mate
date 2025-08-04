@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -6,25 +7,24 @@ import {
   View,
   FlatList,
 } from "react-native";
-import React, { useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/redux/store/store";
 
 import { resetBill, saveBill } from "@/redux/features/billSlice/billSlice";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import BaseButton from "@/components/BaseButton/BaseButton";
 import { useForm } from "@/hooks/useForm/useForm";
+import { AppDispatch } from "@/redux/store/store";
 
 const Modal = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { month } = useLocalSearchParams();
   const router = useRouter();
 
-  const { formData, handleChange, resetForm, validate, errors, isFormChanged } =
-    useForm({
-      amount: "",
-      description: "",
-      participant: "",
-    });
+  const { formData, handleChange, resetForm } = useForm({
+    amount: "",
+    description: "",
+    participant: "",
+  });
 
   // Store participants as objects with name and paid
   const [participants, setParticipants] = useState<
@@ -43,6 +43,24 @@ const Modal = () => {
 
   const removeParticipant = (participantName: string) => {
     setParticipants((prev) => prev.filter((p) => p.name !== participantName));
+  };
+
+  const handleCancel = () => {
+    resetForm();
+    router.back();
+  };
+
+  const handleSubmit = () => {
+    dispatch(
+      saveBill({
+        month: month as string,
+        participants,
+        amount: formData.amount,
+        description: formData.description,
+      })
+    );
+    dispatch(resetBill());
+    router.back();
   };
 
   return (
@@ -74,12 +92,11 @@ const Modal = () => {
           value={formData.participant}
           onChangeText={(text) => handleChange("participant", text)}
         />
-        <TouchableOpacity
-          style={styles.addButton}
+        <BaseButton
+          title="Add"
           onPress={handleAddParticipant}
-        >
-          <Text style={styles.addButtonText}>Add</Text>
-        </TouchableOpacity>
+          buttonStyle={styles.btnAddStyle}
+        />
       </View>
       <FlatList
         data={participants}
@@ -106,29 +123,12 @@ const Modal = () => {
       </Text>
 
       <View style={{ flexDirection: "row", marginTop: 16 }}>
-        <TouchableOpacity
-          onPress={() => {
-            dispatch(
-              saveBill({
-                month: month as string,
-                participants,
-                amount: formData.amount,
-                description: formData.description,
-              })
-            );
-            dispatch(resetBill());
-            router.back();
-          }}
-          style={[styles.addButton, { alignItems: "center", flex: 1 }]}
-        >
-          <Text style={styles.addButtonText}>Save Expense</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => resetForm()}
-          style={[styles.addButton, { alignItems: "center", flex: 1 }]}
-        >
-          <Text style={styles.addButtonText}>Cancel</Text>
-        </TouchableOpacity>
+        <View style={{ flex: 1 }}>
+          <BaseButton title="Save Expense" onPress={handleSubmit} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <BaseButton title="Cancel" onPress={handleCancel} />
+        </View>
       </View>
     </View>
   );
@@ -137,6 +137,10 @@ const Modal = () => {
 export default Modal;
 
 const styles = StyleSheet.create({
+  btnAddStyle: {
+    height: 50,
+    justifyContent: "center",
+  },
   container: {
     flex: 1,
     padding: 16,
@@ -169,18 +173,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 8,
-  },
-  addButton: {
-    backgroundColor: "#22223B",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    marginLeft: 8,
-  },
-  addButtonText: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 16,
   },
 
   /// Participant list styles
