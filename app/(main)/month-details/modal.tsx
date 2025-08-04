@@ -110,6 +110,7 @@ const Modal = () => {
                 description: formData.description,
               })
             );
+            dispatch(resetBill());
             router.back();
           }}
           style={[styles.addButton, { alignItems: "center", flex: 1 }]}

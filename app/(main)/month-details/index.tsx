@@ -10,8 +10,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams, Link } from "expo-router";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store/store";
 import LottieView from "lottie-react-native";
+import { selectBillsByMonth } from "@/redux/features/billSlice/selectors";
 
 const MonthDetails = () => {
   const router = useRouter();
@@ -25,9 +25,9 @@ const MonthDetails = () => {
     "#FFDAC1", // Peach
   ];
 
-  const { bills } = useSelector((state: RootState) => state.bill);
-
-  const billForMonth = bills.some((bill: any) => bill.month === month);
+  const { billsByMonth } = useSelector(selectBillsByMonth);
+  const billsForMonth = billsByMonth[month as string] || [];
+  const billForMonth = billsForMonth.length > 0;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -77,43 +77,52 @@ const MonthDetails = () => {
         )}
         {billForMonth ? (
           <FlatList
-            data={bills}
+            data={billsForMonth}
             renderItem={({ item, index }) => (
-              <View
-                style={[
-                  {
-                    padding: 10,
-                    backgroundColor: colors[index % colors.length],
-                  },
-                  styles.monthCard,
-                ]}
+              <TouchableOpacity
+                onPress={() =>
+                  router.push({
+                    pathname: "/month-details/bill-details",
+                    params: { month, billIndex: index },
+                  })
+                }
               >
                 <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                  }}
+                  style={[
+                    {
+                      padding: 10,
+                      backgroundColor: colors[index % colors.length],
+                    },
+                    styles.monthCard,
+                  ]}
                 >
-                  <Text style={styles.billAmount}>{item.description}</Text>
-                  <Text style={styles.billAmount}>${item.amount}</Text>
-                </View>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Text style={styles.billSplit}>Split per person:</Text>
-                  <Text style={styles.billSplit}>
-                    ${Number(item.amount) / item.participants.length}
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Text style={styles.billAmount}>{item.description}</Text>
+                    <Text style={styles.billAmount}>${item.amount}</Text>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Text style={styles.billSplit}>Split per person:</Text>
+                    <Text style={styles.billSplit}>
+                      ${Number(item.amount) / item.participants.length}
+                    </Text>
+                  </View>
+                  <Text style={styles.billParticipants}>
+                    Participants: {item.participants.join(", ")}
                   </Text>
                 </View>
-                <Text style={styles.billParticipants}>
-                  Participants: {item.participants.join(", ")}
-                </Text>
-              </View>
+              </TouchableOpacity>
             )}
-            keyExtractor={(item, index) => item.toString() + index}
+            keyExtractor={(item, index) => item.description + index}
           />
         ) : null}
       </View>
