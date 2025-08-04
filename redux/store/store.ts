@@ -15,7 +15,7 @@ import billSlice from "../features/billSlice/billSlice";
 const persistConfig = {
   key: "root",
   storage: AsyncStorage,
-  whitelist: ["bill"],
+  whitelist: ["bill"], // Only persist the bill slice
 };
 const rootReducer = combineReducers({
   bill: billSlice,

@@ -26,17 +26,23 @@ const Modal = () => {
       participant: "",
     });
 
-  const [participants, setParticipants] = useState<string[]>([]);
+  // Store participants as objects with name and paid
+  const [participants, setParticipants] = useState<
+    { name: string; paid: boolean }[]
+  >([]);
 
   const handleAddParticipant = () => {
     if (formData.participant.trim()) {
-      setParticipants((prev) => [...prev, formData.participant]);
+      setParticipants((prev) => [
+        ...prev,
+        { name: formData.participant, paid: false },
+      ]);
       handleChange("participant", "");
     }
   };
 
-  const removeParticipant = (participant: string) => {
-    setParticipants((prev) => prev.filter((p) => p !== participant));
+  const removeParticipant = (participantName: string) => {
+    setParticipants((prev) => prev.filter((p) => p.name !== participantName));
   };
 
   return (
@@ -77,11 +83,11 @@ const Modal = () => {
       </View>
       <FlatList
         data={participants}
-        keyExtractor={(item, idx) => item + idx}
+        keyExtractor={(item, idx) => `${item.name}-${idx}`}
         renderItem={({ item }) => (
           <View style={styles.participantItem}>
-            <Text style={styles.participantText}>{item}</Text>
-            <TouchableOpacity onPress={() => removeParticipant(item)}>
+            <Text style={styles.participantText}>{item.name}</Text>
+            <TouchableOpacity onPress={() => removeParticipant(item.name)}>
               <Text style={styles.removeText}>Remove</Text>
             </TouchableOpacity>
           </View>

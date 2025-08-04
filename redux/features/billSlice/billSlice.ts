@@ -1,10 +1,15 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { removeParticipantFromBill } from "./removeParticipantFromBill";
 
+interface Participant {
+  name: string;
+  paid: boolean;
+}
+
 interface Bill {
   amount: string;
   description: string;
-  participants: string[];
+  participants: Participant[];
   month?: string;
 }
 
@@ -38,12 +43,34 @@ const billSlice = createSlice({
       state.currentBill.description = action.payload;
     },
     addParticipant: (state, action: PayloadAction<string>) => {
-      state.currentBill.participants.push(action.payload);
+      state.currentBill.participants.push({
+        name: action.payload,
+        paid: false,
+      });
     },
     removeParticipant: (state, action: PayloadAction<string>) => {
       state.currentBill.participants = state.currentBill.participants.filter(
-        (participant) => participant !== action.payload
+        (participant) => participant.name !== action.payload
       );
+    },
+    toggleParticipantPaid: (
+      state,
+      action: PayloadAction<{
+        month: string;
+        billIndex: number;
+        participantName: string;
+      }>
+    ) => {
+      const { month, billIndex, participantName } = action.payload;
+      const bills = state.billsByMonth[month];
+      if (bills && bills[billIndex]) {
+        const participant = bills[billIndex].participants.find(
+          (p) => p.name === participantName
+        );
+        if (participant) {
+          participant.paid = !participant.paid;
+        }
+      }
     },
     saveBill: (state, action: PayloadAction<Bill>) => {
       const { month, ...rest } = action.payload;
@@ -51,7 +78,7 @@ const billSlice = createSlice({
       const billCopy = {
         ...rest,
         month,
-        participants: [...action.payload.participants],
+        participants: action.payload.participants.map((p) => ({ ...p })),
       };
       if (!state.billsByMonth[month]) {
         state.billsByMonth[month] = [];
@@ -71,7 +98,7 @@ const billSlice = createSlice({
       const bills = state.billsByMonth[month];
       if (bills && bills[billIndex]) {
         bills[billIndex].participants = bills[billIndex].participants.filter(
-          (p) => p !== participant
+          (p) => p.name !== participant
         );
       }
     });
@@ -84,5 +111,6 @@ export const {
   addParticipant,
   removeParticipant,
   saveBill,
+  toggleParticipantPaid,
 } = billSlice.actions;
 export default billSlice.reducer;
