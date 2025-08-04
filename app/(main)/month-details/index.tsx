@@ -113,12 +113,42 @@ const MonthDetails = () => {
                   >
                     <Text style={styles.billSplit}>Split per person:</Text>
                     <Text style={styles.billSplit}>
-                      ${Number(item.amount) / item.participants.length}
+                      $
+                      {item.participants.length > 0
+                        ? (
+                            Number(item.amount) / item.participants.length
+                          ).toFixed(2)
+                        : "0.00"}
                     </Text>
                   </View>
                   <Text style={styles.billParticipants}>
-                    Participants: {item.participants.join(", ")}
+                    Participants:{" "}
+                    {item.participants
+                      .map((p: any) => (typeof p === "string" ? p : p.name))
+                      .join(", ")}
                   </Text>
+                  {/* Progress Bar */}
+                  {item.participants.length > 0 &&
+                    (() => {
+                      // Count paid participants (support both string and object)
+                      const paidCount = item.participants.filter(
+                        (p: any) => typeof p === "object" && p.paid
+                      ).length;
+                      const percent = paidCount / item.participants.length;
+                      return (
+                        <View style={styles.progressBarContainer}>
+                          <View
+                            style={[
+                              styles.progressBar,
+                              { width: `${percent * 100}%` },
+                            ]}
+                          />
+                          <Text style={styles.progressText}>
+                            {paidCount}/{item.participants.length} paid
+                          </Text>
+                        </View>
+                      );
+                    })()}
                 </View>
               </TouchableOpacity>
             )}
@@ -185,5 +215,32 @@ const styles = StyleSheet.create({
     // color: "#008060",
     fontWeight: "600",
     marginTop: 6,
+  },
+
+  // Progress bar styles
+  progressBarContainer: {
+    height: 18,
+    backgroundColor: "#eee",
+    borderRadius: 8,
+    marginTop: 8,
+    marginBottom: 4,
+    overflow: "hidden",
+    position: "relative",
+    justifyContent: "center",
+  },
+  progressBar: {
+    height: "100%",
+    backgroundColor: "#4caf50",
+    borderRadius: 8,
+    position: "absolute",
+    left: 0,
+    top: 0,
+  },
+  progressText: {
+    textAlign: "center",
+    fontSize: 12,
+    color: "#333",
+    fontWeight: "600",
+    zIndex: 1,
   },
 });
