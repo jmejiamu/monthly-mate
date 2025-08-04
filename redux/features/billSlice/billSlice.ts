@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { removeParticipantFromBill } from "./removeParticipantFromBill";
 
 interface Bill {
   amount: string;
@@ -8,8 +9,10 @@ interface Bill {
 }
 
 interface BillState {
-  bills: Bill[];
-  currentBill: Bill; // removed optional
+  billsByMonth: {
+    [month: string]: Bill[];
+  };
+  currentBill: Bill;
 }
 
 const initialBill: Bill = {
@@ -20,7 +23,7 @@ const initialBill: Bill = {
 };
 
 const initialState: BillState = {
-  bills: [],
+  billsByMonth: {},
   currentBill: { ...initialBill },
 };
 
@@ -43,12 +46,35 @@ const billSlice = createSlice({
       );
     },
     saveBill: (state, action: PayloadAction<Bill>) => {
-      state.bills.push(action.payload);
-      // state.currentBill = { ...initialBill };
+      const { month, ...rest } = action.payload;
+      if (!month) return;
+      const billCopy = {
+        ...rest,
+        month,
+        participants: [...action.payload.participants],
+      };
+      if (!state.billsByMonth[month]) {
+        state.billsByMonth[month] = [];
+      }
+      state.billsByMonth[month].push(billCopy);
     },
     resetBill: (state) => {
-      state.currentBill = { ...initialBill };
+      state.currentBill = {
+        ...initialBill,
+        participants: [],
+      };
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(removeParticipantFromBill, (state, action) => {
+      const { month, billIndex, participant } = action.payload;
+      const bills = state.billsByMonth[month];
+      if (bills && bills[billIndex]) {
+        bills[billIndex].participants = bills[billIndex].participants.filter(
+          (p) => p !== participant
+        );
+      }
+    });
   },
 });
 export const {
