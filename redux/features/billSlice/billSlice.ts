@@ -6,7 +6,7 @@ interface Participant {
   paid: boolean;
 }
 
-interface Bill {
+export interface Bill {
   amount: string;
   description: string;
   participants: Participant[];
