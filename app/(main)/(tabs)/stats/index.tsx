@@ -34,12 +34,30 @@ const StatsScreen = () => {
     return { label: short, value: total };
   });
 
+  const totalYear = chartData.reduce((sum, item) => sum + item.value, 0);
+  const avgMonth = chartData.length ? totalYear / chartData.length : 0;
+  const maxMonth = chartData.reduce(
+    (max, m) => (m.value > max.value ? m : max),
+    chartData[0]
+  );
+  const minMonth = chartData.reduce(
+    (min, m) => (m.value < min.value ? m : min),
+    chartData[0]
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Monthly Expenses</Text>
       </View>
-      <Text style={{ marginTop: 16, marginHorizontal: 16 }}>
+      <Text
+        style={{
+          marginTop: 16,
+          marginHorizontal: 16,
+          fontSize: 16,
+          fontWeight: "semibold",
+        }}
+      >
         Total expenses for each month
       </Text>
       <View style={styles.chartContainer}>
@@ -47,12 +65,49 @@ const StatsScreen = () => {
           data={chartData}
           barWidth={35}
           cappedBars
-          capColor={"rgba(78, 0, 142)"}
+          capColor={"rgba(167, 199, 231)"}
           capThickness={4}
           showGradient
-          gradientColor={"rgba(200, 100, 244,0.8)"}
-          frontColor={"rgba(219, 182, 249,0.2)"}
+          gradientColor={"rgba(167, 199, 231,0.8)"}
+          frontColor={"rgba(167, 199, 231,0.2)"}
         />
+      </View>
+      <View style={styles.statsContainer}>
+        <Text style={styles.statsTitle}>Key Stats</Text>
+        <View style={[styles.textContainer, { marginBottom: 30 }]}>
+          <Text style={{ fontWeight: "semibold", fontSize: 16 }}>
+            Total Yearly Expenses
+          </Text>
+          <Text style={{ fontWeight: "bold", fontSize: 16 }}>
+            ${totalYear.toFixed(2)}
+          </Text>
+        </View>
+        <View style={[styles.textContainer, { marginBottom: 30 }]}>
+          <Text style={{ fontWeight: "semibold", fontSize: 16 }}>
+            Average Monthly Expense
+          </Text>
+          <Text style={{ fontWeight: "bold", fontSize: 16 }}>
+            ${avgMonth.toFixed(2)}
+          </Text>
+        </View>
+        <View style={[styles.textContainer, { marginBottom: 30 }]}>
+          <Text style={{ fontWeight: "semibold", fontSize: 16 }}>
+            Highest Month
+          </Text>
+          <Text style={{ fontWeight: "bold", fontSize: 16 }}>
+            {" "}
+            {maxMonth.label} (${maxMonth.value.toFixed(2)})
+          </Text>
+        </View>
+        <View style={styles.textContainer}>
+          <Text style={{ fontWeight: "semibold", fontSize: 16 }}>
+            Lowest Month
+          </Text>
+          <Text style={{ fontWeight: "bold", fontSize: 16 }}>
+            {" "}
+            {minMonth.label} (${minMonth.value.toFixed(2)})
+          </Text>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -61,6 +116,10 @@ const StatsScreen = () => {
 export default StatsScreen;
 
 const styles = StyleSheet.create({
+  textContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
   container: {
     // flex: 1,
     backgroundColor: "#fff",
@@ -76,5 +135,20 @@ const styles = StyleSheet.create({
   chartContainer: {
     marginTop: 32,
     paddingHorizontal: 16,
+  },
+
+  //
+  statsContainer: {
+    marginTop: 32,
+    marginHorizontal: 16,
+    padding: 16,
+    backgroundColor: "rgba(167, 199, 231,0.3)",
+    borderRadius: 12,
+    elevation: 2,
+  },
+  statsTitle: {
+    fontWeight: "bold",
+    fontSize: 16,
+    marginBottom: 30,
   },
 });
