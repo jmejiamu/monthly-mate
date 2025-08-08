@@ -9,21 +9,46 @@ import {
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useDispatch } from "react-redux";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, Controller } from "react-hook-form";
 
 import { resetBill, saveBill } from "@/redux/features/billSlice/billSlice";
 import BaseButton from "@/components/BaseButton/BaseButton";
-import { useForm } from "@/hooks/useForm/useForm";
 import { AppDispatch } from "@/redux/store/store";
+
+const schema = z.object({
+  amount: z
+    .string()
+    .min(1, "Amount is required")
+    .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+      message: "Amount must be a positive number",
+    }),
+  description: z.string().min(3, "Description must be at least 3 characters"),
+  participant: z.string().optional(),
+});
+
+type FormData = z.infer<typeof schema>;
 
 const Modal = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { month } = useLocalSearchParams();
   const router = useRouter();
 
-  const { formData, handleChange, resetForm } = useForm({
-    amount: "",
-    description: "",
-    participant: "",
+  const {
+    control,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      amount: "",
+      description: "",
+      participant: "",
+    },
   });
 
   // Store participants as objects with name and paid
@@ -32,12 +57,10 @@ const Modal = () => {
   >([]);
 
   const handleAddParticipant = () => {
-    if (formData.participant.trim()) {
-      setParticipants((prev) => [
-        ...prev,
-        { name: formData.participant, paid: false },
-      ]);
-      handleChange("participant", "");
+    const participant = watch("participant");
+    if (participant && participant.trim()) {
+      setParticipants((prev) => [...prev, { name: participant, paid: false }]);
+      setValue("participant", "");
     }
   };
 
@@ -46,17 +69,17 @@ const Modal = () => {
   };
 
   const handleCancel = () => {
-    resetForm();
+    reset();
     router.back();
   };
 
-  const handleSubmit = () => {
+  const onSubmit = (data: FormData) => {
     dispatch(
       saveBill({
         month: month as string,
         participants,
-        amount: formData.amount,
-        description: formData.description,
+        amount: data.amount,
+        description: data.description,
       })
     );
     dispatch(resetBill());
@@ -70,27 +93,61 @@ const Modal = () => {
         It's important to keep track of your expenses.
       </Text>
 
-      <TextInput
-        value={formData.amount}
-        onChangeText={(text) => handleChange("amount", text)}
-        style={styles.input}
-        placeholder="Amount"
-        keyboardType="numeric"
+      <Controller
+        control={control}
+        name="amount"
+        render={({ field: { onChange, onBlur, value } }) => (
+          <>
+            <TextInput
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              style={styles.input}
+              placeholder="Amount"
+              keyboardType="numeric"
+            />
+            {errors.amount && (
+              <Text style={{ color: "#ff4444", marginBottom: 8 }}>
+                {errors.amount.message}
+              </Text>
+            )}
+          </>
+        )}
       />
-      <TextInput
-        value={formData.description}
-        onChangeText={(text) => handleChange("description", text)}
-        style={styles.input}
-        placeholder="Description"
+      <Controller
+        control={control}
+        name="description"
+        render={({ field: { onChange, onBlur, value } }) => (
+          <>
+            <TextInput
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              style={styles.input}
+              placeholder="Description"
+            />
+            {errors.description && (
+              <Text style={{ color: "#ff4444", marginBottom: 8 }}>
+                {errors.description.message}
+              </Text>
+            )}
+          </>
+        )}
       />
       <Text style={styles.label}>Add Participants</Text>
 
       <View style={styles.participantRow}>
-        <TextInput
-          style={[styles.input, { flex: 1, marginBottom: 0 }]}
-          placeholder="Participant name"
-          value={formData.participant}
-          onChangeText={(text) => handleChange("participant", text)}
+        <Controller
+          control={control}
+          name="participant"
+          render={({ field: { onChange, value } }) => (
+            <TextInput
+              style={[styles.input, { flex: 1, marginBottom: 0 }]}
+              placeholder="Participant name"
+              value={value}
+              onChangeText={onChange}
+            />
+          )}
         />
         <BaseButton
           title="Add"
@@ -111,20 +168,20 @@ const Modal = () => {
         )}
         style={{ marginTop: 8 }}
       />
-      <Text style={styles.label}>Total Expenses: {formData.amount}</Text>
+      <Text style={styles.label}>Total Expenses: {watch("amount")}</Text>
       <Text style={styles.label}>
         Total Participants: {participants?.length || 0}
       </Text>
       <Text style={styles.label}>
         Evenly Split:{" "}
         {participants?.length > 0
-          ? (parseFloat(formData.amount) || 0) / participants.length
+          ? (parseFloat(watch("amount")) || 0) / participants.length
           : 0}
       </Text>
 
       <View style={{ flexDirection: "row", marginTop: 16 }}>
         <View style={{ flex: 1 }}>
-          <BaseButton title="Save Expense" onPress={handleSubmit} />
+          <BaseButton title="Save Expense" onPress={handleSubmit(onSubmit)} />
         </View>
         <View style={{ flex: 1 }}>
           <BaseButton title="Cancel" onPress={handleCancel} />
