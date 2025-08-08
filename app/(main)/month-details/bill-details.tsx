@@ -68,14 +68,34 @@ const BillDetails = () => {
         >
           <FontAwesome name="money" size={46} color="black" />
         </View>
-        <Text style={styles.textStyle}>{bill?.description}</Text>
-        <Text style={styles.textStyle}>Full Amount ${bill?.amount}</Text>
-        <Text style={styles.textStyle}>
-          Per Person $
-          {participants.length > 0
-            ? (Number(bill?.amount) / participants.length).toFixed(2)
-            : "0.00"}
-        </Text>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
+          <Text style={[styles.textStyle, { fontWeight: "semibold" }]}>
+            Bill type
+          </Text>
+          <Text style={styles.textStyle}>{bill?.description}</Text>
+        </View>
+        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+          <Text style={[styles.textStyle, { fontWeight: "semibold" }]}>
+            Full Amount{" "}
+          </Text>
+          <Text style={styles.textStyle}>${bill?.amount}</Text>
+        </View>
+        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+          <Text style={[styles.textStyle, { fontWeight: "semibold" }]}>
+            Per Person
+          </Text>
+          <Text style={styles.textStyle}>
+            $
+            {participants.length > 0
+              ? (Number(bill?.amount) / participants.length).toFixed(2)
+              : "0.00"}
+          </Text>
+        </View>
         <FlatList
           data={participants}
           keyExtractor={(item, idx) => `${item.name}-${idx}`}
@@ -93,6 +113,9 @@ const BillDetails = () => {
             );
           }}
           style={{ marginTop: 8 }}
+          ListHeaderComponent={
+            <Text style={styles.textStyle}>Participants</Text>
+          }
         />
       </View>
     </SafeAreaView>
@@ -105,6 +128,7 @@ const styles = StyleSheet.create({
   textStyle: {
     fontSize: 18,
     fontWeight: "600",
+    marginBottom: 25,
   },
   /// Participant list styles
   participantItem: {
