@@ -49,10 +49,12 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="participants"
+        name="stats"
         options={{
-          title: "Participants",
-          tabBarIcon: ({ color }) => <TabBarIcon name="users" color={color} />,
+          title: "Stats",
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name="bar-chart" color={color} />
+          ),
           headerShown: false,
         }}
       />
