@@ -68,6 +68,7 @@ const MonthDetails = () => {
             data={billsForMonth}
             renderItem={({ item, index }) => (
               <TouchableOpacity
+                activeOpacity={0.94}
                 onPress={() =>
                   router.push({
                     pathname: "/month-details/bill-details",

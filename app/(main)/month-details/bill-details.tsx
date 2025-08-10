@@ -55,7 +55,7 @@ const BillDetails = () => {
           style={{ marginBottom: 16 }}
           onPress={() => router.back()}
         >
-          <AntDesign name="arrowleft" size={24} color="black" />
+          <AntDesign name="leftcircleo" size={30} color="black" />
         </TouchableOpacity>
         <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 16 }}>
           {month} Bill Details

@@ -25,6 +25,7 @@ export default function Home() {
           keyExtractor={(item) => item.name}
           renderItem={({ item, index }) => (
             <TouchableOpacity
+              activeOpacity={0.94}
               onPress={() => handleMonthPress(item.name, item.emoji)}
             >
               <MainCard item={item} index={index} />

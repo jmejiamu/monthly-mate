@@ -16,6 +16,7 @@ import { useForm, Controller } from "react-hook-form";
 import { resetBill, saveBill } from "@/redux/features/billSlice/billSlice";
 import BaseButton from "@/components/BaseButton/BaseButton";
 import { AppDispatch } from "@/redux/store/store";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const schema = z.object({
   amount: z
@@ -87,7 +88,7 @@ const Modal = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Add a new Expense</Text>
       <Text style={styles.description}>
         It's important to keep track of your expenses.
@@ -187,7 +188,7 @@ const Modal = () => {
           <BaseButton title="Cancel" onPress={handleCancel} />
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
