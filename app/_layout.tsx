@@ -7,12 +7,13 @@ import {
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+// ...existing code...
 import "react-native-reanimated";
 
+import { UpdateModal } from "@/components/UpdateModal/UpdateModal";
 import { useColorScheme } from "@/components/useColorScheme";
-import { Provider } from "react-redux";
 import { persistor, store } from "@/redux/store/store";
+import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 
 export {
@@ -52,13 +53,46 @@ export default function RootLayout() {
   return <RootLayoutNav />;
 }
 
+import * as Updates from "expo-updates";
+import { useCallback, useEffect, useState } from "react";
+
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const [updateAvailable, setUpdateAvailable] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  const checkForUpdate = useCallback(async () => {
+    try {
+      const update = await Updates.checkForUpdateAsync();
+      if (update.isAvailable) {
+        setUpdateAvailable(true);
+      }
+    } catch (e) {
+      // Optionally handle error
+    } finally {
+      setChecking(false);
+    }
+  }, []);
+
+  const handleReload = async () => {
+    setUpdateAvailable(false);
+    await Updates.fetchUpdateAsync();
+    await Updates.reloadAsync();
+  };
+
+  useEffect(() => {
+    checkForUpdate();
+  }, [checkForUpdate]);
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
+          <UpdateModal
+            visible={updateAvailable}
+            onReload={handleReload}
+            onClose={() => setUpdateAvailable(false)}
+          />
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           </Stack>
