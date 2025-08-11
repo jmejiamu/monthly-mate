@@ -78,7 +78,9 @@ const Modal = () => {
     dispatch(
       saveBill({
         month: month as string,
-        participants,
+        participants: participants.map((p) =>
+          typeof p === "string" ? { name: p, paid: false } : p
+        ),
         amount: data.amount,
         description: data.description,
       })

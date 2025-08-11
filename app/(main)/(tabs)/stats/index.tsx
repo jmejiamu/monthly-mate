@@ -25,25 +25,36 @@ const StatsScreen = () => {
   const { billsByMonth } = useSelector(selectBillsByMonth);
 
   // Map billsByMonth to chart data
-  const chartData = MONTHS.map(({ full, short }) => {
+  const chartData = MONTHS?.map(({ full, short }) => {
     const bills = billsByMonth?.[full] || [];
-    const total = bills.reduce(
-      (sum, bill) => sum + Number(bill.amount || 0),
+    const total = bills?.reduce(
+      (sum, bill) => sum + Number(bill?.amount || 0),
       0
     );
     return { label: short, value: total };
   });
 
-  const totalYear = chartData.reduce((sum, item) => sum + item.value, 0);
-  const avgMonth = chartData.length ? totalYear / chartData.length : 0;
-  const maxMonth = chartData.reduce(
-    (max, m) => (m.value > max.value ? m : max),
-    chartData[0]
+  const totalYear = chartData?.reduce(
+    (sum, item) => sum + (item?.value || 0),
+    0
   );
-  const minMonth = chartData.reduce(
-    (min, m) => (m.value < min.value ? m : min),
-    chartData[0]
-  );
+  const avgMonth = chartData?.length ? totalYear / chartData?.length : 0;
+  const hasData =
+    Array.isArray(chartData) &&
+    chartData.length > 0 &&
+    chartData.some((item) => item.value > 0);
+  const maxMonth = hasData
+    ? chartData.reduce(
+        (max, m) => (m?.value > max?.value ? m : max),
+        chartData[0]
+      )
+    : { label: "-", value: 0 };
+  const minMonth = hasData
+    ? chartData.reduce(
+        (min, m) => (m?.value < min?.value ? m : min),
+        chartData[0]
+      )
+    : { label: "-", value: 0 };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -56,22 +67,31 @@ const StatsScreen = () => {
           marginHorizontal: 16,
           fontSize: 16,
           fontWeight: "semibold",
+          textAlign: "center",
         }}
       >
         Total expenses for each month
       </Text>
-      <View style={styles.chartContainer}>
-        <BarChart
-          data={chartData}
-          barWidth={35}
-          cappedBars
-          capColor={"rgba(167, 199, 231)"}
-          capThickness={4}
-          showGradient
-          gradientColor={"rgba(167, 199, 231,0.8)"}
-          frontColor={"rgba(167, 199, 231,0.2)"}
-        />
-      </View>
+      {Array.isArray(chartData) &&
+      chartData.length > 0 &&
+      chartData.some((item) => item.value > 0) ? (
+        <View style={styles.chartContainer}>
+          <BarChart
+            data={chartData}
+            barWidth={35}
+            cappedBars
+            capColor={"rgba(167, 199, 231)"}
+            capThickness={4}
+            showGradient
+            gradientColor={"rgba(167, 199, 231,0.8)"}
+            frontColor={"rgba(167, 199, 231,0.2)"}
+          />
+        </View>
+      ) : (
+        <Text style={{ textAlign: "center", marginTop: 32 }}>
+          No data to display
+        </Text>
+      )}
       <View style={styles.statsContainer}>
         <Text style={styles.statsTitle}>Key Stats</Text>
         <View style={[styles.textContainer, { marginBottom: 30 }]}>
@@ -79,7 +99,7 @@ const StatsScreen = () => {
             Total Yearly Expenses
           </Text>
           <Text style={{ fontWeight: "bold", fontSize: 16 }}>
-            ${totalYear.toFixed(2)}
+            ${hasData ? totalYear.toFixed(2) : "0.00"}
           </Text>
         </View>
         <View style={[styles.textContainer, { marginBottom: 30 }]}>
@@ -87,7 +107,7 @@ const StatsScreen = () => {
             Average Monthly Expense
           </Text>
           <Text style={{ fontWeight: "bold", fontSize: 16 }}>
-            ${avgMonth.toFixed(2)}
+            ${hasData ? avgMonth.toFixed(2) : "0.00"}
           </Text>
         </View>
         <View style={[styles.textContainer, { marginBottom: 30 }]}>
@@ -95,7 +115,6 @@ const StatsScreen = () => {
             Highest Month
           </Text>
           <Text style={{ fontWeight: "bold", fontSize: 16 }}>
-            {" "}
             {maxMonth.label} (${maxMonth.value.toFixed(2)})
           </Text>
         </View>
@@ -104,7 +123,6 @@ const StatsScreen = () => {
             Lowest Month
           </Text>
           <Text style={{ fontWeight: "bold", fontSize: 16 }}>
-            {" "}
             {minMonth.label} (${minMonth.value.toFixed(2)})
           </Text>
         </View>
@@ -144,7 +162,7 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: "rgba(167, 199, 231,0.3)",
     borderRadius: 12,
-    elevation: 2,
+    // elevation: 2,
   },
   statsTitle: {
     fontWeight: "bold",
