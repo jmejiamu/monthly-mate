@@ -91,6 +91,16 @@ const billSlice = createSlice({
         participants: [],
       };
     },
+    deleteBill: (
+      state,
+      action: PayloadAction<{ month: string; billIndex: number }>
+    ) => {
+      const { month, billIndex } = action.payload;
+      const bills = state.billsByMonth[month];
+      if (bills && bills[billIndex]) {
+        bills.splice(billIndex, 1);
+      }
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(removeParticipantFromBill, (state, action) => {
@@ -112,5 +122,6 @@ export const {
   removeParticipant,
   saveBill,
   toggleParticipantPaid,
+  deleteBill,
 } = billSlice.actions;
 export default billSlice.reducer;

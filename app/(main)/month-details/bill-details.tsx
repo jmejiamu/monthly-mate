@@ -85,17 +85,21 @@ const BillDetails = () => {
           </Text>
           <Text style={styles.textStyle}>${bill?.amount}</Text>
         </View>
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <Text style={[styles.textStyle, { fontWeight: "semibold" }]}>
-            Per Person
-          </Text>
-          <Text style={styles.textStyle}>
-            $
-            {participants.length > 0
-              ? (Number(bill?.amount) / participants.length).toFixed(2)
-              : "0.00"}
-          </Text>
-        </View>
+        {participants.length > 0 && (
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-between" }}
+          >
+            <Text style={[styles.textStyle, { fontWeight: "semibold" }]}>
+              Per Person
+            </Text>
+            <Text style={styles.textStyle}>
+              $
+              {participants.length > 0
+                ? (Number(bill?.amount) / participants.length).toFixed(2)
+                : "0.00"}
+            </Text>
+          </View>
+        )}
         <FlatList
           data={participants}
           keyExtractor={(item, idx) => `${item.name}-${idx}`}
@@ -114,7 +118,11 @@ const BillDetails = () => {
           }}
           style={{ marginTop: 8 }}
           ListHeaderComponent={
-            <Text style={styles.textStyle}>Participants</Text>
+            <>
+              {participants.length > 0 && (
+                <Text style={styles.textStyle}>Participants</Text>
+              )}
+            </>
           }
         />
       </View>
