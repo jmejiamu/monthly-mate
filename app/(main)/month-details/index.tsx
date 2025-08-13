@@ -43,10 +43,7 @@ const MonthDetails = () => {
           </Link>
         </View>
         {billForMonth && (
-          <>
-            <Text style={styles.monthText}>{month}</Text>
-            <Text style={{ fontSize: 60, textAlign: "center" }}>{emoji}</Text>
-          </>
+          <Text style={[styles.monthText, { marginBottom: 10 }]}>{month}</Text>
         )}
 
         {!billForMonth && (
