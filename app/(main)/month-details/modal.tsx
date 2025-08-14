@@ -178,7 +178,9 @@ const Modal = () => {
       <Text style={styles.label}>
         Evenly Split:{" "}
         {participants?.length > 0
-          ? (parseFloat(watch("amount")) || 0) / participants.length
+          ? ((parseFloat(watch("amount")) || 0) / participants.length).toFixed(
+              2
+            )
           : 0}
       </Text>
 

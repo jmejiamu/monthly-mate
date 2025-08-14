@@ -48,6 +48,23 @@ const billSlice = createSlice({
         paid: false,
       });
     },
+    addParticipantToBill: (
+      state,
+      action: PayloadAction<{
+        month: string;
+        billIndex: number;
+        participantName: string;
+      }>
+    ) => {
+      const { month, billIndex, participantName } = action.payload;
+      const bills = state.billsByMonth[month];
+      if (bills && bills[billIndex]) {
+        bills[billIndex].participants.push({
+          name: participantName,
+          paid: false,
+        });
+      }
+    },
     removeParticipant: (state, action: PayloadAction<string>) => {
       state.currentBill.participants = state.currentBill.participants.filter(
         (participant) => participant.name !== action.payload
@@ -122,6 +139,7 @@ export const {
   removeParticipant,
   saveBill,
   toggleParticipantPaid,
+  addParticipantToBill,
   deleteBill,
 } = billSlice.actions;
 export default billSlice.reducer;

@@ -2,6 +2,7 @@ import {
   FlatList,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -10,17 +11,48 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign, FontAwesome } from "@expo/vector-icons";
 import { useSelector, useDispatch } from "react-redux";
+import { z } from "zod";
 
 import { removeParticipantFromBill } from "@/redux/features/billSlice/removeParticipantFromBill";
 import { selectBillByMonthAndIndex } from "@/redux/features/billSlice/selectBillByMonthAndIndex";
-import { toggleParticipantPaid } from "@/redux/features/billSlice/billSlice";
+import {
+  addParticipant,
+  addParticipantToBill,
+  resetBill,
+  saveBill,
+  toggleParticipantPaid,
+} from "@/redux/features/billSlice/billSlice";
 import ParticipantCard from "@/components/ParticipantCard/ParticipantCard";
 import { AppDispatch } from "@/redux/store/store";
+import { Controller, useForm } from "react-hook-form";
+import BaseButton from "@/components/BaseButton/BaseButton";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const schema = z.object({
+  participant: z.string().min(2).max(100),
+});
+
+type FormData = {
+  participant: string;
+};
 
 const BillDetails = () => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { month, billIndex } = useLocalSearchParams();
+  const {
+    control,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      participant: "",
+    },
+  });
 
   const bill = useSelector(
     selectBillByMonthAndIndex(month as string, Number(billIndex))
@@ -46,6 +78,20 @@ const BillDetails = () => {
         participant: participantName,
       })
     );
+  };
+
+  const handleAddParticipant = () => {
+    const participantName = watch("participant");
+    if (participantName && participantName.trim() !== "") {
+      dispatch(
+        addParticipantToBill({
+          month: month as string,
+          billIndex: Number(billIndex),
+          participantName: participantName.trim(),
+        })
+      );
+      setValue("participant", ""); // Clear input after adding
+    }
   };
 
   return (
@@ -85,6 +131,7 @@ const BillDetails = () => {
           </Text>
           <Text style={styles.textStyle}>${bill?.amount}</Text>
         </View>
+
         {participants.length > 0 && (
           <View
             style={{ flexDirection: "row", justifyContent: "space-between" }}
@@ -100,6 +147,25 @@ const BillDetails = () => {
             </Text>
           </View>
         )}
+        <View style={styles.participantRow}>
+          <Controller
+            control={control}
+            name="participant"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                style={[styles.input, { flex: 1, marginBottom: 0 }]}
+                placeholder="Participant name"
+                value={value}
+                onChangeText={onChange}
+              />
+            )}
+          />
+          <BaseButton
+            title="Add"
+            onPress={handleSubmit(handleAddParticipant)}
+            buttonStyle={styles.btnAddStyle}
+          />
+        </View>
         <FlatList
           data={participants}
           keyExtractor={(item, idx) => `${item.name}-${idx}`}
@@ -159,5 +225,24 @@ const styles = StyleSheet.create({
   paidText: {
     textDecorationLine: "line-through",
     color: "#4caf50",
+  },
+  //
+  participantRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  input: {
+    height: 50,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    fontSize: 18,
+    marginBottom: 16,
+  },
+  btnAddStyle: {
+    height: 50,
+    justifyContent: "center",
   },
 });
