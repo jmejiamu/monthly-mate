@@ -33,7 +33,7 @@ type FormData = z.infer<typeof schema>;
 
 const Modal = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { month } = useLocalSearchParams();
+  const { month, year } = useLocalSearchParams();
   const router = useRouter();
 
   const {
@@ -77,6 +77,7 @@ const Modal = () => {
   const onSubmit = (data: FormData) => {
     dispatch(
       saveBill({
+        year: year as string,
         month: month as string,
         participants: participants.map((p) =>
           typeof p === "string" ? { name: p, paid: false } : p

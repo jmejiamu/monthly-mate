@@ -10,11 +10,12 @@ import { MaterialIcons } from "@expo/vector-icons";
 interface InfoCardProps {
   item: Bill;
   index: number;
+  year: string;
 }
 
 const InfoCard = (props: InfoCardProps) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { item, index } = props;
+  const { item, index, year } = props;
   return (
     <View style={styles.monthCard}>
       <View style={[styles.containerRow, { alignItems: "center" }]}>
@@ -74,7 +75,13 @@ const InfoCard = (props: InfoCardProps) => {
       )}
       <TouchableOpacity
         onPress={() =>
-          dispatch(deleteBill({ month: String(item.month), billIndex: index }))
+          dispatch(
+            deleteBill({
+              month: String(item.month),
+              billIndex: index,
+              year: String(year),
+            })
+          )
         }
         style={item.participants.length > 0 ? { marginTop: 10 } : {}}
       >

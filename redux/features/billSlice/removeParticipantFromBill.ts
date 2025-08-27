@@ -1,7 +1,8 @@
 import { createAction } from "@reduxjs/toolkit";
 
-// Payload: { month: string, billIndex: number, participant: string }
+// Payload: { year: string, month: string, billIndex: number, participant: string }
 export const removeParticipantFromBill = createAction<{
+  year: string;
   month: string;
   billIndex: number;
   participant: string;

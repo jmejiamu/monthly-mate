@@ -12,15 +12,19 @@ import {
   FlatList,
 } from "react-native";
 
-import { selectBillsByMonth } from "@/redux/features/billSlice/selectors";
+import { selectBillsByYearMonth } from "@/redux/features/billSlice/selectors";
 import InfoCard from "@/components/InfoCard/InfoCard";
+import { RootState } from "@/redux/store/store";
 
 const MonthDetails = () => {
   const router = useRouter();
-  const { month, emoji } = useLocalSearchParams();
+  const { month, year } = useLocalSearchParams();
 
-  const { billsByMonth } = useSelector(selectBillsByMonth);
-  const billsForMonth = billsByMonth[month as string] || [];
+  // Get bills for the current year and month
+  const billsForMonth = useSelector((state: RootState) =>
+    selectBillsByYearMonth(state, year as string, month as string)
+  );
+
   const billForMonth = billsForMonth.length > 0;
 
   return (
@@ -31,7 +35,7 @@ const MonthDetails = () => {
             <AntDesign name="leftcircleo" size={30} color="black" />
           </TouchableOpacity>
           <Link
-            href={{ pathname: "/month-details/modal", params: { month } }}
+            href={{ pathname: "/month-details/modal", params: { month, year } }}
             asChild
           >
             <TouchableOpacity>
@@ -69,11 +73,11 @@ const MonthDetails = () => {
                 onPress={() =>
                   router.push({
                     pathname: "/month-details/bill-details",
-                    params: { month, billIndex: index },
+                    params: { year, month, billIndex: index },
                   })
                 }
               >
-                <InfoCard item={item} index={index} />
+                <InfoCard item={item} index={index} year={year as string} />
               </TouchableOpacity>
             )}
             keyExtractor={(item, index) => item.description + index}
