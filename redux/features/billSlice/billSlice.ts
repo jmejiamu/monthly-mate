@@ -14,8 +14,10 @@ export interface Bill {
 }
 
 interface BillState {
-  billsByMonth: {
-    [month: string]: Bill[];
+  billsByYear: {
+    [year: string]: {
+      [month: string]: Bill[];
+    };
   };
   currentBill: Bill;
 }
@@ -28,7 +30,7 @@ const initialBill: Bill = {
 };
 
 const initialState: BillState = {
-  billsByMonth: {},
+  billsByYear: {},
   currentBill: { ...initialBill },
 };
 
@@ -51,13 +53,14 @@ const billSlice = createSlice({
     addParticipantToBill: (
       state,
       action: PayloadAction<{
+        year: string;
         month: string;
         billIndex: number;
         participantName: string;
       }>
     ) => {
-      const { month, billIndex, participantName } = action.payload;
-      const bills = state.billsByMonth[month];
+      const { year, month, billIndex, participantName } = action.payload;
+      const bills = state.billsByYear[year]?.[month];
       if (bills && bills[billIndex]) {
         bills[billIndex].participants.push({
           name: participantName,
@@ -73,13 +76,14 @@ const billSlice = createSlice({
     toggleParticipantPaid: (
       state,
       action: PayloadAction<{
+        year: string;
         month: string;
         billIndex: number;
         participantName: string;
       }>
     ) => {
-      const { month, billIndex, participantName } = action.payload;
-      const bills = state.billsByMonth[month];
+      const { year, month, billIndex, participantName } = action.payload;
+      const bills = state.billsByYear[year]?.[month];
       if (bills && bills[billIndex]) {
         const participant = bills[billIndex].participants.find(
           (p) => p.name === participantName
@@ -89,18 +93,22 @@ const billSlice = createSlice({
         }
       }
     },
-    saveBill: (state, action: PayloadAction<Bill>) => {
-      const { month, ...rest } = action.payload;
-      if (!month) return;
+    saveBill: (state, action: PayloadAction<Bill & { year: string }>) => {
+      const { month, year, ...rest } = action.payload;
+      if (!month || !year) return;
       const billCopy = {
         ...rest,
         month,
         participants: action.payload.participants.map((p) => ({ ...p })),
       };
-      if (!state.billsByMonth[month]) {
-        state.billsByMonth[month] = [];
+
+      if (!state.billsByYear[year]) {
+        state.billsByYear[year] = {};
       }
-      state.billsByMonth[month].push(billCopy);
+      if (!state.billsByYear[year][month]) {
+        state.billsByYear[year][month] = [];
+      }
+      state.billsByYear[year][month].push(billCopy);
     },
     resetBill: (state) => {
       state.currentBill = {
@@ -110,10 +118,10 @@ const billSlice = createSlice({
     },
     deleteBill: (
       state,
-      action: PayloadAction<{ month: string; billIndex: number }>
+      action: PayloadAction<{ year: string; month: string; billIndex: number }>
     ) => {
-      const { month, billIndex } = action.payload;
-      const bills = state.billsByMonth[month];
+      const { year, month, billIndex } = action.payload;
+      const bills = state.billsByYear[year]?.[month];
       if (bills && bills[billIndex]) {
         bills.splice(billIndex, 1);
       }
@@ -121,8 +129,8 @@ const billSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(removeParticipantFromBill, (state, action) => {
-      const { month, billIndex, participant } = action.payload;
-      const bills = state.billsByMonth[month];
+      const { year, month, billIndex, participant } = action.payload;
+      const bills = state.billsByYear[year]?.[month];
       if (bills && bills[billIndex]) {
         bills[billIndex].participants = bills[billIndex].participants.filter(
           (p) => p.name !== participant

@@ -1,10 +1,10 @@
-import React from "react";
+import React, { use } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet, Text, View } from "react-native";
 import { BarChart } from "react-native-gifted-charts";
 import { useSelector } from "react-redux";
 
-import { selectBillsByMonth } from "@/redux/features/billSlice/selectors";
+import { RootState } from "@/redux/store/store";
 
 const MONTHS = [
   { full: "January", short: "Jan" },
@@ -22,7 +22,10 @@ const MONTHS = [
 ];
 
 const StatsScreen = () => {
-  const { billsByMonth } = useSelector(selectBillsByMonth);
+  // const { billsByMonth } = useSelector(selectBillsByMonth);
+  const { billsByYear } = useSelector((state: RootState) => state.bill);
+  const currentYear = new Date().getFullYear();
+  const billsByMonth = billsByYear?.[currentYear] || [];
 
   // Map billsByMonth to chart data
   const chartData = MONTHS?.map(({ full, short }) => {

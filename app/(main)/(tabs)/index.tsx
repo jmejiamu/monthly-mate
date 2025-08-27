@@ -13,9 +13,13 @@ import { months } from "@/utils/data";
 
 export default function Home() {
   const router = useRouter();
+  const currentYear = new Date().getFullYear();
 
   const handleMonthPress = (month: string, emoji: string) => {
-    router.navigate({ pathname: `/month-details`, params: { month, emoji } });
+    router.navigate({
+      pathname: `/month-details`,
+      params: { month, emoji, year: currentYear },
+    });
   };
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>

@@ -14,7 +14,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { z } from "zod";
 
 import { removeParticipantFromBill } from "@/redux/features/billSlice/removeParticipantFromBill";
-import { selectBillByMonthAndIndex } from "@/redux/features/billSlice/selectBillByMonthAndIndex";
+import { selectBillByYearMonthAndIndex } from "@/redux/features/billSlice/selectBillByMonthAndIndex";
 import {
   addParticipant,
   addParticipantToBill,
@@ -39,7 +39,7 @@ type FormData = {
 const BillDetails = () => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
-  const { month, billIndex } = useLocalSearchParams();
+  const { year, month, billIndex } = useLocalSearchParams();
   const {
     control,
     handleSubmit,
@@ -55,7 +55,11 @@ const BillDetails = () => {
   });
 
   const bill = useSelector(
-    selectBillByMonthAndIndex(month as string, Number(billIndex))
+    selectBillByYearMonthAndIndex(
+      year as string,
+      month as string,
+      Number(billIndex)
+    )
   );
 
   const participants = bill?.participants || [];
@@ -63,6 +67,7 @@ const BillDetails = () => {
   const handleTogglePaid = (participantName: string) => {
     dispatch(
       toggleParticipantPaid({
+        year: year as string,
         month: month as string,
         billIndex: Number(billIndex),
         participantName,
@@ -73,6 +78,7 @@ const BillDetails = () => {
   const handleRemoveParticipant = (participantName: string) => {
     dispatch(
       removeParticipantFromBill({
+        year: year as string,
         month: month as string,
         billIndex: Number(billIndex),
         participant: participantName,
@@ -85,6 +91,7 @@ const BillDetails = () => {
     if (participantName && participantName.trim() !== "") {
       dispatch(
         addParticipantToBill({
+          year: year as string,
           month: month as string,
           billIndex: Number(billIndex),
           participantName: participantName.trim(),
