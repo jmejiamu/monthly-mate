@@ -52,6 +52,8 @@ const Modal = () => {
     },
   });
 
+  const MY_NAME = "Me";
+
   // Store participants as objects with name and paid
   const [participants, setParticipants] = useState<
     { name: string; paid: boolean }[]
@@ -62,6 +64,13 @@ const Modal = () => {
     if (participant && participant.trim()) {
       setParticipants((prev) => [...prev, { name: participant, paid: false }]);
       setValue("participant", "");
+    }
+  };
+
+  const handleAddMe = () => {
+    // Prevent duplicate "Me" entries
+    if (!participants.some((p) => p.name === MY_NAME)) {
+      setParticipants((prev) => [...prev, { name: MY_NAME, paid: false }]);
     }
   };
 
@@ -158,13 +167,33 @@ const Modal = () => {
           onPress={handleAddParticipant}
           buttonStyle={styles.btnAddStyle}
         />
+        <BaseButton
+          title="Add Me"
+          onPress={handleAddMe}
+          buttonStyle={[
+            styles.btnAddStyle,
+            {
+              backgroundColor: participants.some((p) => p.name === MY_NAME)
+                ? "#cccccc" // Disabled color
+                : "#92A8D1", // Enabled color
+            },
+          ]}
+          disabled={participants.some((p) => p.name === MY_NAME)}
+        />
       </View>
       <FlatList
         data={participants}
         keyExtractor={(item, idx) => `${item.name}-${idx}`}
         renderItem={({ item }) => (
           <View style={styles.participantItem}>
-            <Text style={styles.participantText}>{item.name}</Text>
+            <Text
+              style={[
+                styles.participantText,
+                item.name === MY_NAME && styles.meParticipantText,
+              ]}
+            >
+              {item.name}
+            </Text>
             <TouchableOpacity onPress={() => removeParticipant(item.name)}>
               <Text style={styles.removeText}>Remove</Text>
             </TouchableOpacity>
@@ -250,6 +279,10 @@ const styles = StyleSheet.create({
   participantText: {
     fontSize: 16,
     color: "#333",
+  },
+  meParticipantText: {
+    color: "black",
+    fontWeight: "bold",
   },
   removeText: {
     color: "#ff4444",

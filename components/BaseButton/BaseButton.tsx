@@ -3,24 +3,25 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  TouchableOpacityProps,
   View,
   ViewStyle,
 } from "react-native";
 import React from "react";
 
-interface BaseButtonProps {
-  onPress: () => void;
+interface BaseButtonProps extends TouchableOpacityProps {
   title: string;
   buttonStyle?: StyleProp<ViewStyle>;
 }
 
 const BaseButton = (props: BaseButtonProps) => {
-  const { onPress, title, buttonStyle } = props;
+  const { onPress, title, buttonStyle, ...rest } = props;
   return (
     <View>
       <TouchableOpacity
         onPress={onPress}
         style={[styles.addButton, buttonStyle]}
+        {...rest}
       >
         <Text style={styles.addButtonText}>{title}</Text>
       </TouchableOpacity>
