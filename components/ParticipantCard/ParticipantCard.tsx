@@ -11,6 +11,7 @@ interface ParticipantCardProps {
 
 const ParticipantCard = (props: ParticipantCardProps) => {
   const { name, paid, onTogglePaid, onRemove } = props;
+  const MY_NAME = "Me";
   return (
     <View style={styles.participantItem}>
       <View style={styles.rowContainer}>
@@ -25,7 +26,14 @@ const ParticipantCard = (props: ParticipantCardProps) => {
           />
         </TouchableOpacity>
         <View style={{ marginLeft: 12 }} />
-        <Text style={[styles.participantText, paid && styles.paidText]}>
+        <Text
+          style={[
+            styles.participantText,
+            name === MY_NAME && styles.meParticipantText,
+            ,
+            paid && styles.paidText,
+          ]}
+        >
           {name}
         </Text>
       </View>
@@ -64,5 +72,9 @@ const styles = StyleSheet.create({
   paidText: {
     textDecorationLine: "line-through",
     color: "#4caf50",
+  },
+  meParticipantText: {
+    color: "black",
+    fontWeight: "bold",
   },
 });
