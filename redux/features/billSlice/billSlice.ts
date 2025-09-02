@@ -44,6 +44,23 @@ const billSlice = createSlice({
     setDescription: (state, action: PayloadAction<string>) => {
       state.currentBill.description = action.payload;
     },
+    updateBill: (
+      state,
+      action: PayloadAction<{
+        year: string;
+        month: string;
+        billIndex: number;
+        description: string;
+        amount: string;
+      }>
+    ) => {
+      const { year, month, billIndex, description, amount } = action.payload;
+      const bills = state.billsByYear[year]?.[month];
+      if (bills && bills[billIndex]) {
+        bills[billIndex].description = description;
+        bills[billIndex].amount = amount;
+      }
+    },
     addParticipant: (state, action: PayloadAction<string>) => {
       state.currentBill.participants.push({
         name: action.payload,
@@ -149,5 +166,6 @@ export const {
   toggleParticipantPaid,
   addParticipantToBill,
   deleteBill,
+  updateBill,
 } = billSlice.actions;
 export default billSlice.reducer;

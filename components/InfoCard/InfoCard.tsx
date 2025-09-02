@@ -21,7 +21,9 @@ const InfoCard = (props: InfoCardProps) => {
       <View style={[styles.containerRow, { alignItems: "center" }]}>
         <View style={{ flex: 1 }}>
           <View style={[styles.containerRow]}>
-            <Text style={styles.billAmount}>{item.description}</Text>
+            <Text style={styles.billAmount} numberOfLines={1}>
+              {item.description}
+            </Text>
             <Text style={styles.billAmount}>${item.amount}</Text>
           </View>
           {item.participants.length > 0 && (

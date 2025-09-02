@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Modal } from "react-native";
 import React from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -16,11 +17,11 @@ import { z } from "zod";
 import { removeParticipantFromBill } from "@/redux/features/billSlice/removeParticipantFromBill";
 import { selectBillByYearMonthAndIndex } from "@/redux/features/billSlice/selectBillByMonthAndIndex";
 import {
-  addParticipant,
   addParticipantToBill,
-  resetBill,
-  saveBill,
+  setAmount,
+  setDescription,
   toggleParticipantPaid,
+  updateBill,
 } from "@/redux/features/billSlice/billSlice";
 import ParticipantCard from "@/components/ParticipantCard/ParticipantCard";
 import { AppDispatch } from "@/redux/store/store";
@@ -37,6 +38,7 @@ type FormData = {
 };
 
 const BillDetails = () => {
+  // ...existing code...
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { year, month, billIndex } = useLocalSearchParams();
@@ -61,6 +63,20 @@ const BillDetails = () => {
       Number(billIndex)
     )
   );
+  const [editModalVisible, setEditModalVisible] = React.useState(false);
+  const [editedDescription, setEditedDescription] = React.useState("");
+  const [editedAmount, setEditedAmount] = React.useState("");
+  // const {
+  //   setAmount,
+  //   setDescription,
+  // } = require("@/redux/features/billSlice/billSlice");
+  const editMode = editModalVisible;
+  React.useEffect(() => {
+    if (editMode && bill) {
+      setEditedDescription(bill.description || "");
+      setEditedAmount(bill.amount?.toString() || "");
+    }
+  }, [editMode, bill]);
 
   const participants = bill?.participants || [];
 
@@ -101,6 +117,25 @@ const BillDetails = () => {
     }
   };
 
+  const MY_NAME = "Me";
+
+  const handleAddMe = () => {
+    if (
+      !participants.some(
+        (p: any) => (typeof p === "string" ? p : p.name) === MY_NAME
+      )
+    ) {
+      dispatch(
+        addParticipantToBill({
+          year: year as string,
+          month: month as string,
+          billIndex: Number(billIndex),
+          participantName: MY_NAME,
+        })
+      );
+    }
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <View style={{ marginHorizontal: 16, flex: 1 }}>
@@ -110,23 +145,27 @@ const BillDetails = () => {
         >
           <AntDesign name="leftcircleo" size={30} color="black" />
         </TouchableOpacity>
-        <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 16 }}>
-          {month} Bill Details
-        </Text>
-        <View
-          style={{
-            alignItems: "center",
-            borderRadius: 8,
-          }}
-        >
-          <FontAwesome name="money" size={46} color="black" />
-        </View>
         <View
           style={{
             flexDirection: "row",
+            alignItems: "center",
             justifyContent: "space-between",
+            marginBottom: 16,
           }}
         >
+          <Text style={{ fontSize: 24, fontWeight: "bold" }}>
+            {month} Bill Details
+          </Text>
+          <TouchableOpacity
+            onPress={() => setEditModalVisible(true)}
+            style={{ marginLeft: 12 }}
+            accessibilityLabel="Edit Bill"
+          >
+            <FontAwesome name="edit" size={24} color="#007AFF" />
+          </TouchableOpacity>
+        </View>
+
+        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
           <Text style={[styles.textStyle, { fontWeight: "semibold" }]}>
             Bill type
           </Text>
@@ -138,6 +177,93 @@ const BillDetails = () => {
           </Text>
           <Text style={styles.textStyle}>${bill?.amount}</Text>
         </View>
+
+        {/* Edit Bill Modal */}
+        <Modal
+          visible={editModalVisible}
+          animationType="fade"
+          transparent={true}
+          onRequestClose={() => setEditModalVisible(false)}
+        >
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "rgba(0,0,0,0.3)",
+            }}
+          >
+            <View
+              style={{
+                backgroundColor: "#fff",
+                padding: 24,
+                borderRadius: 16,
+                minWidth: 300,
+              }}
+            >
+              <Text
+                style={{ fontSize: 20, fontWeight: "bold", marginBottom: 16 }}
+              >
+                Edit Bill
+              </Text>
+              <Text style={{ marginBottom: 8 }}>Description</Text>
+              <TextInput
+                style={[styles.input, { marginBottom: 16 }]}
+                value={editedDescription}
+                onChangeText={setEditedDescription}
+                placeholder="Description"
+              />
+              <Text style={{ marginBottom: 8 }}>Amount</Text>
+              <TextInput
+                style={[styles.input, { marginBottom: 16 }]}
+                value={editedAmount}
+                onChangeText={setEditedAmount}
+                placeholder="Amount"
+                keyboardType="numeric"
+              />
+              <View
+                style={{ flexDirection: "row", justifyContent: "flex-end" }}
+              >
+                <TouchableOpacity
+                  onPress={() => {
+                    dispatch(
+                      updateBill({
+                        year: year as string,
+                        month: month as string,
+                        billIndex: Number(billIndex),
+                        description: editedDescription,
+                        amount: editedAmount,
+                      })
+                    );
+                    setEditModalVisible(false);
+                  }}
+                  style={{
+                    backgroundColor: "#007AFF",
+                    padding: 12,
+                    borderRadius: 8,
+                    marginRight: 8,
+                  }}
+                >
+                  <Text style={{ color: "#fff", fontWeight: "bold" }}>
+                    Save
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setEditModalVisible(false)}
+                  style={{
+                    backgroundColor: "#ccc",
+                    padding: 12,
+                    borderRadius: 8,
+                  }}
+                >
+                  <Text style={{ color: "#333", fontWeight: "bold" }}>
+                    Cancel
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
 
         {participants.length > 0 && (
           <View
@@ -171,6 +297,23 @@ const BillDetails = () => {
             title="Add"
             onPress={handleSubmit(handleAddParticipant)}
             buttonStyle={styles.btnAddStyle}
+          />
+          <BaseButton
+            title="Add Me"
+            onPress={handleAddMe}
+            buttonStyle={[
+              styles.btnAddStyle,
+              {
+                backgroundColor: participants.some(
+                  (p: any) => (typeof p === "string" ? p : p.name) === MY_NAME
+                )
+                  ? "#cccccc"
+                  : "#92A8D1",
+              },
+            ]}
+            disabled={participants.some(
+              (p: any) => (typeof p === "string" ? p : p.name) === MY_NAME
+            )}
           />
         </View>
         <FlatList
