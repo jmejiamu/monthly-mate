@@ -28,7 +28,7 @@ const MonthDetails = () => {
   const billForMonth = billsForMonth.length > 0;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#f0f0f0" }}>
       <View style={{ marginHorizontal: 16, flex: 1 }}>
         <View style={styles.headerContainer}>
           <TouchableOpacity onPress={() => router.back()}>

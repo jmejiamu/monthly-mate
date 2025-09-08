@@ -53,7 +53,7 @@ const InfoCard = (props: InfoCardProps) => {
             paddingLeft: 15,
           }}
         >
-          <MaterialIcons name="arrow-forward-ios" size={24} color="white" />
+          <MaterialIcons name="arrow-forward-ios" size={24} color="#333" />
         </View>
       </View>
 
@@ -111,13 +111,15 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 3,
-    backgroundColor: "#434343ff",
+    // backgroundColor: "#fcf7e6",
+    backgroundColor: "white",
   },
   // Bill details styles
   billAmount: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#ffffffff",
+    // color: "#ffffffff",
+    color: "#333",
   },
   billDescription: {
     fontSize: 16,
@@ -126,14 +128,14 @@ const styles = StyleSheet.create({
   },
   billParticipants: {
     fontSize: 16,
-    color: "#ffffffff",
+    color: "#333",
     marginBottom: 2,
     fontStyle: "italic",
     fontWeight: "600",
   },
   billSplit: {
     fontSize: 16,
-    color: "#ffffffff",
+    color: "#333",
     fontWeight: "600",
     marginTop: 6,
   },
