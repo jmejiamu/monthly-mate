@@ -27,14 +27,19 @@ export default function Home() {
         <FlatList
           data={months}
           keyExtractor={(item) => item.name}
+          numColumns={2}
+          columnWrapperStyle={styles.columnWrapper}
           renderItem={({ item, index }) => (
-            <TouchableOpacity
-              activeOpacity={0.94}
-              onPress={() => handleMonthPress(item.name, item.emoji)}
-            >
-              <MainCard item={item} index={index} />
-            </TouchableOpacity>
+            <View style={styles.gridItem}>
+              <TouchableOpacity
+                activeOpacity={0.94}
+                onPress={() => handleMonthPress(item.name, item.emoji)}
+              >
+                <MainCard item={item} index={index} />
+              </TouchableOpacity>
+            </View>
           )}
+          showsVerticalScrollIndicator={false}
           ListHeaderComponent={
             <Text style={styles.header}>Welcome to Monthly Mate</Text>
           }
@@ -57,5 +62,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#22223B",
     letterSpacing: 1,
+  },
+  columnWrapper: {
+    justifyContent: "space-around",
+  },
+  gridItem: {
+    flex: 1,
+    margin: 4,
   },
 });
