@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { colorsTheme } from "@/theme/colors";
+import { AntDesign } from "@expo/vector-icons";
 
 interface MonthCardProps {
   item: {
@@ -22,9 +23,17 @@ const MainCard = (props: MonthCardProps) => {
         styles.monthCard,
       ]}
     >
-      <View style={{ flexDirection: "row", alignItems: "center" }}>
-        <Text style={{ fontSize: 30 }}>{item.emoji}</Text>
-        <View style={{ marginLeft: 16 }}>
+      <View>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
+          <Text style={{ fontSize: 45 }}>{item.emoji}</Text>
+          <AntDesign name="rightcircleo" size={24} color="#858585" />
+        </View>
+        <View>
           <Text style={styles.monthText}>{item.name}</Text>
         </View>
       </View>
