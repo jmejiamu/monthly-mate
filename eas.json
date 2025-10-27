@@ -23,8 +23,10 @@
   "submit": {
     "production": {
       "android": {
-        "track": "internal", // Play Console Internal testing track
-        "releaseStatus": "draft" // create draft then roll out from console
+        "serviceAccountKeyPath": "./service-account-monthly-mate.json",
+        // "track": "internal" // Play Console Internal testing track
+        "track": "alpha" //  add the production track when the app is ready for release and comment the internal track
+        // "releaseStatus": "draft" // create draft then roll out from console
       }
     },
     "preview": {
