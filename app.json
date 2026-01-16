@@ -14,7 +14,7 @@
       "backgroundColor": "#A7C7E7"
     },
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.jmejiamu.monthlymate",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
