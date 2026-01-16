@@ -22,7 +22,7 @@ const MonthDetails = () => {
 
   // Get bills for the current year and month
   const billsForMonth = useSelector((state: RootState) =>
-    selectBillsByYearMonth(state, year as string, month as string)
+    selectBillsByYearMonth(state, year as string, month as string),
   );
 
   const billForMonth = billsForMonth.length > 0;
@@ -32,7 +32,7 @@ const MonthDetails = () => {
       <View style={{ marginHorizontal: 16, flex: 1 }}>
         <View style={styles.headerContainer}>
           <TouchableOpacity onPress={() => router.back()}>
-            <AntDesign name="leftcircleo" size={30} color="black" />
+            <AntDesign name="left-circle" size={30} color="black" />
           </TouchableOpacity>
           <Link
             href={{ pathname: "/month-details/modal", params: { month, year } }}
