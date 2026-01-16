@@ -60,8 +60,8 @@ const BillDetails = () => {
     selectBillByYearMonthAndIndex(
       year as string,
       month as string,
-      Number(billIndex)
-    )
+      Number(billIndex),
+    ),
   );
   const [editModalVisible, setEditModalVisible] = React.useState(false);
   const [editedDescription, setEditedDescription] = React.useState("");
@@ -87,7 +87,7 @@ const BillDetails = () => {
         month: month as string,
         billIndex: Number(billIndex),
         participantName,
-      })
+      }),
     );
   };
 
@@ -98,7 +98,7 @@ const BillDetails = () => {
         month: month as string,
         billIndex: Number(billIndex),
         participant: participantName,
-      })
+      }),
     );
   };
 
@@ -111,7 +111,7 @@ const BillDetails = () => {
           month: month as string,
           billIndex: Number(billIndex),
           participantName: participantName.trim(),
-        })
+        }),
       );
       setValue("participant", ""); // Clear input after adding
     }
@@ -122,7 +122,7 @@ const BillDetails = () => {
   const handleAddMe = () => {
     if (
       !participants.some(
-        (p: any) => (typeof p === "string" ? p : p.name) === MY_NAME
+        (p: any) => (typeof p === "string" ? p : p.name) === MY_NAME,
       )
     ) {
       dispatch(
@@ -131,7 +131,7 @@ const BillDetails = () => {
           month: month as string,
           billIndex: Number(billIndex),
           participantName: MY_NAME,
-        })
+        }),
       );
     }
   };
@@ -143,7 +143,7 @@ const BillDetails = () => {
           style={{ marginBottom: 16 }}
           onPress={() => router.back()}
         >
-          <AntDesign name="leftcircleo" size={30} color="black" />
+          <AntDesign name="left-circle" size={30} color="black" />
         </TouchableOpacity>
         <View
           style={{
@@ -233,7 +233,7 @@ const BillDetails = () => {
                         billIndex: Number(billIndex),
                         description: editedDescription,
                         amount: editedAmount,
-                      })
+                      }),
                     );
                     setEditModalVisible(false);
                   }}
@@ -305,14 +305,14 @@ const BillDetails = () => {
               styles.btnAddStyle,
               {
                 backgroundColor: participants.some(
-                  (p: any) => (typeof p === "string" ? p : p.name) === MY_NAME
+                  (p: any) => (typeof p === "string" ? p : p.name) === MY_NAME,
                 )
                   ? "#cccccc"
                   : "#92A8D1",
               },
             ]}
             disabled={participants.some(
-              (p: any) => (typeof p === "string" ? p : p.name) === MY_NAME
+              (p: any) => (typeof p === "string" ? p : p.name) === MY_NAME,
             )}
           />
         </View>

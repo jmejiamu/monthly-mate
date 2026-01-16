@@ -31,7 +31,7 @@ const MainCard = (props: MonthCardProps) => {
           }}
         >
           <Text style={{ fontSize: 45 }}>{item.emoji}</Text>
-          <AntDesign name="rightcircleo" size={24} color="#858585" />
+          <AntDesign name="right-circle" size={24} color="#858585" />
         </View>
         <View>
           <Text style={styles.monthText}>{item.name}</Text>
